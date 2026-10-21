@@ -5,6 +5,8 @@
   "scripts": {
     "test": "node test_runner.js",
     "dev": "nodemon index.js",
+    "build": "echo 'Build OK'",
+    "lint": "node -c index.js controllers/*.js routes/*.js middleware/*.js",
     "start": "node index.js"
   },
   "keywords": [],

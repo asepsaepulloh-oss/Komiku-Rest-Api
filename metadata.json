@@ -1,0 +1,5 @@
+{
+  "name": "Komiku REST API",
+  "description": "REST API berbasis Express.js untuk mengambil data komik (Manga, Manhwa, Manhua) dari Komiku secara terstruktur.",
+  "capabilities": []
+}

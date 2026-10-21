@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 const axios = require("axios");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
@@ -17,8 +18,14 @@ process.on("unhandledRejection", (reason, promise) => {
 });
 
 const app = express();
-const port = process.env.PORT || 3001;
+app.set("trust proxy", 1);
+const port = process.env.PORT || 3000;
 const rateLimiter = require("./middleware/rateLimiter");
+
+// Favicon handler to avoid 404s
+app.get(["/favicon.ico", "/favicon.png"], (req, res) => {
+  res.status(204).end();
+});
 
 app.use(rateLimiter);
 app.use(
@@ -59,7 +66,12 @@ const swaggerOptions = {
     },
     servers: [
       {
+        url: "/",
+        description: "Current environment",
+      },
+      {
         url: `http://localhost:${port}`,
+        description: "Local development server",
       },
     ],
   },
@@ -84,7 +96,11 @@ const genreRekomendasi = require("./routes/genre-rekomendasi");
 // Root route
 app.get("/", (req, res) => {
   res.setHeader("Cache-Control", "no-cache");
-  res.sendFile(path.join(__dirname, "frontend", "index.html"));
+  const frontendIndex = path.join(__dirname, "frontend", "index.html");
+  if (fs.existsSync(frontendIndex)) {
+    return res.sendFile(frontendIndex);
+  }
+  return res.redirect("/api-docs");
 });
 
 app.get("/image-proxy", async (req, res) => {
@@ -148,8 +164,8 @@ app.use("/genre-all", genreAll);
 app.use("/genre-rekomendasi", genreRekomendasi);
 app.use("/genre", genreDetail);
 
-app.listen(port, () => {
-  console.log(`Server jalan di http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server jalan di http://0.0.0.0:${port}`);
 });
 
 module.exports = app;
